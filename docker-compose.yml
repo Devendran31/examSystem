@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+
+  # ── NLP Python Service ──
+  nlp-service:
+    build:
+      context: ./nlp-service
+      dockerfile: Dockerfile
+    container_name: exam-nlp-service
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - DEBUG=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - exam-network
+
+  # ── Spring Boot Backend ──
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: exam-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/data/examdb;DB_CLOSE_DELAY=-1
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+      - APP_JWT_SECRET=ExamPortalSecretKey2024CloudBasedNLPAutoEvaluationSystem
+      - APP_JWT_EXPIRATION=86400000
+      - NLP_SERVICE_URL=http://nlp-service:5000
+      - APP_CORS_ALLOWED_ORIGINS=http://localhost,http://localhost:80,http://localhost:3000
+    depends_on:
+      nlp-service:
+        condition: service_healthy
+    volumes:
+      - h2-data:/data
+    networks:
+      - exam-network
+
+  # ── Frontend (Nginx) ──
+  frontend:
+    image: nginx:alpine
+    container_name: exam-frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - exam-network
+
+networks:
+  exam-network:
+    driver: bridge
+
+volumes:
+  h2-data:

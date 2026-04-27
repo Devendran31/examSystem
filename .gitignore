@@ -1,0 +1,44 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+.mvn/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.env
+*.egg-info/
+dist/
+build/
+nltk_data/
+
+# Node (if added later)
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# H2 data files
+*.db
+*.mv.db
+*.trace.db
+
+# Docker
+.dockerignore

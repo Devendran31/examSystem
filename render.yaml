@@ -1,0 +1,49 @@
+services:
+  # ── Python NLP Service ──
+  - type: webService
+    name: exam-nlp-service
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DEBUG
+        value: false
+      - key: PYTHONUNBUFFERED
+        value: true
+    healthCheckPath: /health
+
+  # ── Spring Boot Backend ──
+  - type: webService
+    name: exam-backend
+    runtime: java
+    plan: free
+    buildCommand: |
+      cd backend && mvn clean package -DskipTests
+    startCommand: java -jar backend/target/*.jar
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+      - key: SPRING_DATASOURCE_USERNAME
+        value: sa
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: 
+      - key: SPRING_JPA_DATABASE_PLATFORM
+        value: org.hibernate.dialect.H2Dialect
+      - key: APP_JWT_SECRET
+        value: ExamPortalSecretKey2024CloudBasedNLPAutoEvaluationSystem
+      - key: APP_JWT_EXPIRATION
+        value: '86400000'
+      - key: NLP_SERVICE_URL
+        fromService:
+          name: exam-nlp-service
+          type: webService
+          property: host
+        valuePrefix: 'https://'
+        valueSuffix: ''
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: 'https://*.onrender.com,http://localhost:3000'
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod

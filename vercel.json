@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.js"
+    }
+  ],
+  "env": {
+    "JAVA_BACKEND_URL": "@java_backend_url",
+    "NLP_SERVICE_URL": "@nlp_service_url"
+  }
+}
