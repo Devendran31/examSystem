@@ -4,8 +4,8 @@ services:
     name: exam-nlp-service
     runtime: python
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app
+    buildCommand: pip install -r nlp-service/requirements.txt
+    startCommand: cd nlp-service && gunicorn -w 2 -b 0.0.0.0:$PORT app:app
     envVars:
       - key: PORT
         value: 8000
@@ -18,10 +18,10 @@ services:
   # ── Spring Boot Backend ──
   - type: webService
     name: exam-backend
-    runtime: java
+    runtime: docker
     plan: starter
-    buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -Dspring.profiles.active=prod -jar backend/target/exam-portal-backend-1.0.0.jar
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
