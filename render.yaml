@@ -19,10 +19,9 @@ services:
   - type: webService
     name: exam-backend
     runtime: java
-    plan: free
-    buildCommand: |
-      cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/*.jar
+    plan: starter
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: java -Dspring.profiles.active=prod -jar backend/target/exam-portal-backend-1.0.0.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         value: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
